@@ -102,7 +102,7 @@ def parse_hash(input_str):
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
                   blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None, remote_blackhole_list=False, remote_blackhole_list_filter=None,
-                  active=False, usage=False, vias=False, expinfo=False, min_value=None, no_output=False, json=False):
+                  active=False, usage=False, vias=False, expinfo=False, min_value=None, no_output=False, analyze=False, json=False):
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
@@ -242,6 +242,9 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print(f"Could not unblackhole identity: {e}")
             exit(20)
     
+    elif analyze:
+        analyze_tables(path_table=reticulum.get_path_table(), rate_table=reticulum.get_rate_table(), link_distribution=reticulum.get_link_distribution())
+
     elif table:
         destination_hash = None
         if destination_hexhash != None:
@@ -524,6 +527,7 @@ def main():
         parser.add_argument(      "--reason", action="store", type=str, help="reason for blackholing identity", default=None)
         parser.add_argument("-p", "--blackholed-list", action="store_true", help="view published blackhole list for remote transport instance", default=False)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
+        parser.add_argument("-A", "--analyze", action="store_true", help="Analyze tables", default=False)
         parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
         parser.add_argument("list_filter", nargs="?", default=None, help="filter for remote blackhole list view", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -533,7 +537,7 @@ def main():
         if args.config: configarg = args.config
         else: configarg = None
 
-        if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via and not args.blackholed:
+        if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via and not args.blackholed and not args.analyze:
             print("")
             parser.print_help()
             print("")
@@ -542,12 +546,86 @@ def main():
                           verbosity=args.verbose, timeout=args.w, drop_queues=args.drop_announces, drop_via=args.drop_via, max_hops=args.max, min_value=args.min_value,
                           remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
                           unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, remote_blackhole_list=args.blackholed_list,
-                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, vias=args.vias, active=args.active, expinfo=args.expiry, json=args.json)
+                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, vias=args.vias, active=args.active, expinfo=args.expiry, analyze=args.analyze, json=args.json)
 
             sys.exit(0)
 
     except KeyboardInterrupt:
         print("")
+        exit()
+
+def analyze_tables(path_table=None, rate_table=None, link_distribution=None):
+    if not path_table:
+        print("No path table to analyze")
+        exit()
+
+    else:
+        print(f"Analyzing tables...")
+        # Locally initialize announce cache to be able to
+        # fetch full announce packet data
+        if RNS.Transport.owner.is_connected_to_shared_instance: RNS.Transport.init_announce_cache()
+        tm = RNS.Transport.destination_type_map
+        total = len(path_table)
+        destinations      = {}
+        unresolvable      = 0
+        unknown_types     = set()
+        known_types       = set()
+        unknown_type_dsts = 0
+        known_type_dsts   = 0
+        for path in path_table:
+            dst_hash  = path["hash"]
+            dst_hops  = path["hops"]
+            last_used = path["used"]
+            name_hash = None
+            kd_entry  = RNS.Identity.known_destinations.get(dst_hash, None)
+
+            # New destinations may have arrived after our initial known
+            # destinations snapshot, which is fine, we just count the few
+            # that miss here for now.
+            if not kd_entry: unresolvable += 1
+
+            # Enrich data with information from cached announces
+            else:
+                dst_value       = kd_entry[6]
+                dst_lr_cost     = kd_entry[7]
+                announce_hash   = kd_entry[1]
+                announce_packet = RNS.Transport.get_cached_packet(announce_hash, packet_type="announce")
+                if not announce_packet: unresolvable += 1; continue
+
+                announce_packet.unpack()
+                keysize       = RNS.Identity.KEYSIZE//8
+                name_hash_len = RNS.Identity.NAME_HASH_LENGTH//8
+                name_hash     = announce_packet.data[keysize:keysize+name_hash_len]
+                app_data      = kd_entry[3] or RNS.Identity.recall_app_data(dst_hash, _no_use=True)
+                app_data_len  = len(app_data) if app_data else None # No len counting if no app data
+
+                if name_hash in tm: known_type_dsts   += 1; known_types.add(name_hash)
+                else:               unknown_type_dsts += 1; unknown_types.add(name_hash)
+
+                # TODO: Create actual data structure for use in analysis
+                entry = {}
+
+                destinations[dst_hash] = entry
+
+        if rate_table:
+            # TODO: Incorporate and enrich with data from rate table
+            pass
+
+        if link_distribution:
+            # TODO: Incorporate and enrich with link distribution data
+            pass
+
+        # TODO: Actually analyze tables
+        pass
+
+        # TODO: Actually print a comprehensive, beautifully formatted
+        # overview, charts and data. This is a stub.
+        print(f"Known types        : {len(known_types)}")
+        print(f"Unknown types      : {len(unknown_types)}")
+        print(f"Total types        : {len(known_types)+len(unknown_types)}")
+        print(f"Known type dests   : {known_type_dsts}")
+        print(f"Unknown type dests : {unknown_type_dsts}")
+        print(f"Total type dests   : {known_type_dsts+unknown_type_dsts}")
         exit()
 
 def pretty_date(time=False):
