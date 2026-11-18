@@ -139,6 +139,7 @@ class Interface:
         self.hop_limiter              = None
         self.phy_keepalive            = False
         self.shared_medium            = False
+        self.lossless_medium          = False
 
         self.remote_impl              = None
         self.remote_vers              = None

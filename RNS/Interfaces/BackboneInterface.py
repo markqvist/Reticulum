@@ -156,6 +156,7 @@ class BackboneInterface(Interface):
         self.spawned_interfaces = []
         self.supports_discovery = True
         self.tunnels_allowed = True
+        self.lossless_medium  = True
         self.client_limit = client_limit or self.CLIENT_LIMIT
         self.block_fast_flapping = flap_block
         self.fast_flap_threshold = flap_threshold
@@ -893,6 +894,7 @@ class BackboneClientInterface(Interface):
         self.owner            = owner
         self.online           = False
         self.detached         = False
+        self.lossless_medium  = True
         self.prefer_ipv6      = prefer_ipv6
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
