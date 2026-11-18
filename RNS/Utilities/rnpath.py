@@ -605,7 +605,9 @@ def analyze_tables(path_table=None, rate_table=None, link_distribution=None, cap
                 announce_packet = RNS.Transport.get_cached_packet(announce_hash, packet_type="announce")
                 if not announce_packet: unresolvable += 1; continue
 
-                announce_packet.unpack()
+                try: announce_packet.unpack()
+                except: unresolvable +=1; continue
+
                 keysize       = RNS.Identity.KEYSIZE//8
                 name_hash_len = RNS.Identity.NAME_HASH_LENGTH//8
                 name_hash     = announce_packet.data[keysize:keysize+name_hash_len]
