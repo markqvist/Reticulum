@@ -900,6 +900,28 @@ class Reticulum:
 
             except Exception as e: RNS.log(f"Error while loading blocked IP list: {e}", RNS.LOG_ERROR)
 
+        if os.path.isfile(Reticulum.configdir+"/known_destination_types"):
+            try:
+                with open(Reticulum.configdir+"/known_destination_types", "r") as f:
+                    dst_types = f.read().strip().splitlines()
+                    for line in dst_types:
+                        dst_type = line.strip()
+                        if dst_type.startswith("#"): continue
+                        RNS.Transport.destination_type_map[RNS.Destination.name_hash(dst_type)] = dst_type
+
+            except Exception as e: RNS.log(f"Error while loading known destination types list: {e}", RNS.LOG_ERROR)
+
+        if os.path.isfile(Reticulum.configdir+"/flagged_destination_types"):
+            try:
+                with open(Reticulum.configdir+"/flagged_destination_types", "r") as f:
+                    dst_types = f.read().strip().splitlines()
+                    for line in dst_types:
+                        dst_type = line.strip()
+                        if dst_type.startswith("#"): continue
+                        RNS.Transport.flagged_type_map[RNS.Destination.name_hash(dst_type)] = dst_type
+
+            except Exception as e: RNS.log(f"Error while loading flagged destination types list: {e}", RNS.LOG_ERROR)
+
         dql = RNS.Reticulum.default_data_queue_length() or RNS.Transport.INBOUND_DA_QUEUE_LENGTH
         BackboneInterface.BackboneInterface.DP_IC_HIGH_WM  = max(4, int((BackboneInterface.BackboneInterface.DP_IC_HIGH_WM_PCT/100.0) * dql))
         BackboneInterface.BackboneInterface.DP_IC_MID_WM   = max(2, int((BackboneInterface.BackboneInterface.DP_IC_MID_WM_PCT/100.0)  * dql))
@@ -2020,7 +2042,8 @@ class Reticulum:
                               "via": RNS.Transport.path_table[dst_hash][1], "hops": path_hops,
                               "expires": RNS.Transport.path_table[dst_hash][3], "value": dst_value,
                               "used": RNS.Transport.path_table[dst_hash][7], "lr_cost": lr_cost,
-                              "interface": str(RNS.Transport.path_table[dst_hash][5]) }
+                              "interface": str(RNS.Transport.path_table[dst_hash][5]),
+                              "interface_hash": RNS.Transport.path_table[dst_hash][5].get_hash() }
                     path_table.append(entry)
 
             return path_table
