@@ -404,7 +404,7 @@ class Reticulum:
         RNS.Transport.start(self)
 
         if self.is_shared_instance:
-            self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
+            self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, family=self.rpc_type, backlog=128, authkey=self.rpc_key)
             thread = threading.Thread(target=self.rpc_loop)
             thread.daemon = True
             thread.start()

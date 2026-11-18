@@ -290,7 +290,7 @@ class BackboneInterface(Interface):
             server_socket.bind(bind_address)
         else: raise TypeError(f"Invalid socket type {socket_type} for {interface}")
 
-        server_socket.listen(1)
+        server_socket.listen(16)
         server_socket.setblocking(0)
         BackboneInterface.listener_filenos[server_socket.fileno()] = (interface, server_socket)
         BackboneInterface.epoll.register(server_socket.fileno(), select.EPOLLIN)
