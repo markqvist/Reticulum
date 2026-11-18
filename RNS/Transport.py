@@ -3777,16 +3777,17 @@ class Transport:
                     link_destination = link_entry[IDX_LT_DSTHASH]
                     link_traffic     = link_entry[IDX_LT_TRXB]
                     from_interface   = link_entry[IDX_LT_RCVD_IF]
+                    from_ifhash      = from_interface.get_hash()
 
                     entry = link_destinations.get(link_destination, None)
                     if not entry:
                         entry = { "active": 0, "pending": 0,
-                                  "traffic": 0, "from_ifs": set() }
+                                  "traffic": 0, "from_ifs": [] }
 
                         link_destinations[link_destination] = entry
 
                     entry["traffic"] += link_traffic
-                    entry["from_ifs"].add(from_interface.get_hash())
+                    if not from_ifhash in entry["from_ifs"]: entry["from_ifs"].append(from_ifhash)
                     if active: entry["active"]  += 1
                     else:      entry["pending"] += 1
 
