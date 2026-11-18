@@ -102,7 +102,7 @@ def parse_hash(input_str):
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
                   blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None, remote_blackhole_list=False, remote_blackhole_list_filter=None,
-                  active=False, usage=False, vias=False, expinfo=False, min_value=None, no_output=False, analyze=False, json=False):
+                  active=False, usage=False, vias=False, expinfo=False, min_value=None, no_output=False, analyze=False, capture=None, json=False):
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
@@ -243,7 +243,8 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             exit(20)
     
     elif analyze:
-        analyze_tables(path_table=reticulum.get_path_table(), rate_table=reticulum.get_rate_table(), link_distribution=reticulum.get_link_distribution())
+        analyze_tables(path_table=reticulum.get_path_table(), rate_table=reticulum.get_rate_table(),
+                       link_distribution=reticulum.get_link_distribution(), capture=capture)
 
     elif table:
         destination_hash = None
@@ -528,6 +529,7 @@ def main():
         parser.add_argument("-p", "--blackholed-list", action="store_true", help="view published blackhole list for remote transport instance", default=False)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
         parser.add_argument("-A", "--analyze", action="store_true", help="Analyze tables", default=False)
+        parser.add_argument("--capture", action="store", metavar="hops", type=str, help="path to capture file for analyze mode", default=None)
         parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
         parser.add_argument("list_filter", nargs="?", default=None, help="filter for remote blackhole list view", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -546,7 +548,8 @@ def main():
                           verbosity=args.verbose, timeout=args.w, drop_queues=args.drop_announces, drop_via=args.drop_via, max_hops=args.max, min_value=args.min_value,
                           remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
                           unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, remote_blackhole_list=args.blackholed_list,
-                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, vias=args.vias, active=args.active, expinfo=args.expiry, analyze=args.analyze, json=args.json)
+                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, vias=args.vias, active=args.active, expinfo=args.expiry,
+                          analyze=args.analyze, capture=args.capture, json=args.json)
 
             sys.exit(0)
 
@@ -554,13 +557,18 @@ def main():
         print("")
         exit()
 
-def analyze_tables(path_table=None, rate_table=None, link_distribution=None):
+def analyze_tables(path_table=None, rate_table=None, link_distribution=None, capture=None):
     if not path_table:
         print("No path table to analyze")
         exit()
 
     else:
         print(f"Analyzing tables...")
+
+        # TODO: If a `capture` path is specified, we save and (if existing) load from
+        # this file, so that `rnpath --analyze` can be run at intervals, and continuously
+        # collect data, instead of only providing an at-the-moment snapshot view.
+
         # Locally initialize announce cache to be able to
         # fetch full announce packet data
         if RNS.Transport.owner.is_connected_to_shared_instance: RNS.Transport.init_announce_cache()
@@ -626,6 +634,10 @@ def analyze_tables(path_table=None, rate_table=None, link_distribution=None):
         print(f"Known type dests   : {known_type_dsts}")
         print(f"Unknown type dests : {unknown_type_dsts}")
         print(f"Total type dests   : {known_type_dsts+unknown_type_dsts}")
+
+        # TODO: Ensure we get the terminal width if possible, and fall back to
+        # a sensible default if not, so everything is rendered beautifully.
+
         exit()
 
 def pretty_date(time=False):
