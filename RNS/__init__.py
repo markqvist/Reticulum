@@ -180,6 +180,14 @@ def prettyhexrep(data):
     hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
     return hexrep
 
+__namehash_resolver = None
+def prettynamehash(name_hash):
+    global __namehash_resolver
+    if not __namehash_resolver:
+        import RNS.Transport
+        __namehash_resolver = RNS.Transport.destination_type_name
+    return f"<{__namehash_resolver(name_hash)}>"
+
 def prettycost(value):
     if value == None: return "n"
     elif not type(value) in (float, int): return "n"
