@@ -951,7 +951,7 @@ class Identity:
 
     @staticmethod
     def persist_data(background=False):
-        if not RNS.Transport.owner.is_connected_to_shared_instance:
+        if hasattr(RNS.Transport, "owner") and not RNS.Transport.owner.is_connected_to_shared_instance:
             if Identity.known_destinations_store != None: Identity.flush_known_destinations()
             else: Identity.save_known_destinations_legacy(background=background)
 

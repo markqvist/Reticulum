@@ -4942,7 +4942,7 @@ class Transport:
         if not os.getpid() == RNS.Reticulum.get_instance_pid(): return
         Transport._should_run = False
         Transport.void_queues()
-        if not Transport.owner.is_connected_to_shared_instance:
+        if hasattr(Transport, "owner") and not Transport.owner.is_connected_to_shared_instance:
             Transport.persist_data()
             if Transport.announce_cache != None: Transport.announce_cache.flush()
 
