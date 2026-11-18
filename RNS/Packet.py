@@ -309,6 +309,7 @@ class Packet:
                     self.destination.last_outbound = time.time()
                     self.destination.tx += 1
                     self.destination.txbytes += len(self.ciphertext)
+                    RNS.Transport.link_txb += len(self.raw)
 
             if RNS.Transport.outbound(self): return self.receipt
             else:

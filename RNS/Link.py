@@ -1031,6 +1031,7 @@ class Link:
                 if packet.context != RNS.Packet.KEEPALIVE: self.last_data = self.last_inbound
                 self.rx += 1
                 self.rxbytes += len(packet.data)
+                RNS.Transport.link_rxb += len(packet.raw)
                 if self.status == Link.STALE: self.status = Link.ACTIVE
 
                 if packet.packet_type == RNS.Packet.DATA:
