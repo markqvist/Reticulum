@@ -46,6 +46,7 @@ from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 from RNS._version import __version__
 from RNS.Utilities.rnid import validate_rsg, extract_signed_rsg_data
+from RNS.Utilities.rngit.media import SUPPORTED_IMAGE_EXTS
 from RNS.Utilities.rngit.commitsigs import unarmor_ssh_signature, parse_ssh_signature, extract_commit_author
 
 class NomadNetworkNode():
@@ -127,7 +128,7 @@ class NomadNetworkNode():
     CONVERTABLE_EXTS = [".md"]
     RENDERABLE_EXTS  = [".md", ".mu"]
     RENDER_DEFAULT   = [".md", ".mu"]
-    IMAGE_EXTS       = [".webp", ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".tif", ".bmp"]
+    IMAGE_EXTS       = SUPPORTED_IMAGE_EXTS
 
     def __init__(self, owner=None):
         if not owner: raise TypeError(f"Invalid owner {owner} for {self}")
